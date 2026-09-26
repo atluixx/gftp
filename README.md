@@ -7,8 +7,7 @@ A file transfer protocol built from scratch in Go.
 ```sh
 git clone https://github.com/atluixx/gftp.git
 cd gftp
-go build ./cmd/sender
-go build ./cmd/receiver
+go build ./cmd/gftp
 ```
 
 ## Usage
@@ -16,13 +15,13 @@ go build ./cmd/receiver
 Start the receiver:
 
 ```sh
-go run ./cmd/receiver -output ./output
+./gftp -receive -output ./output
 ```
 
 Then send a file:
 
 ```sh
-go run ./cmd/sender -file ./path/to/file
+./gftp -file ./path/to/file
 ```
 
 The receiver saves the file in the directory specified by `-output`.
@@ -30,11 +29,11 @@ The receiver saves the file in the directory specified by `-output`.
 ### Example
 
 ```sh
-go run ./cmd/receiver -output ./output
+./gftp -receive -output ./output
 ```
 
 ```sh
-go run ./cmd/sender -file ./tests/test.pdf
+./gftp -file ./tests/test.pdf
 ```
 
 ## Roadmap
@@ -46,6 +45,7 @@ go run ./cmd/sender -file ./tests/test.pdf
 * [x] Transfer completion packet
 * [x] Sender file flag
 * [x] Receiver output flag
+* [x] Single binary for sending and receiving
 * [ ] Configurable host and port
 * [ ] Transfer progress
 * [ ] File integrity verification

@@ -33,5 +33,5 @@ go.work.sum
 tests/
 output/
 
-gftp
-rec
+/gftp
+/rec
