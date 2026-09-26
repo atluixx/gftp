@@ -15,25 +15,30 @@ go build ./cmd/gftp
 Start the receiver:
 
 ```sh
-./gftp -receive -output ./output
+./gftp receive -output ./output/
 ```
 
 Then send a file:
 
 ```sh
-./gftp -file ./path/to/file
+./gftp send -file ./path/to/file
 ```
 
-The receiver saves the file in the directory specified by `-output`.
+End `-output` with a slash to keep the transmitted filename, or include a
+filename to rename it:
+
+```sh
+./gftp receive -output ./output/renamed-file.pdf
+```
 
 ### Example
 
 ```sh
-./gftp -receive -output ./output
+./gftp receive -output ./output/
 ```
 
 ```sh
-./gftp -file ./tests/test.pdf
+./gftp send -file ./tests/test.pdf
 ```
 
 ## Roadmap
