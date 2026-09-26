@@ -6,21 +6,28 @@ import (
 	"io"
 )
 
+type PacketType uint8
+
+const (
+	PacketFileInfo PacketType = 1
+	PacketChunk    PacketType = 2
+	PacketFileEnd  PacketType = 3
+)
+
 type Packet struct {
+	Type        PacketType
 	Index       uint32
 	FileSize    int64
 	PayloadSize uint32
 	Payload     []byte
 }
 
-type PacketHeader struct {
-	Index       uint32
-	FileSize    int64
-	PayloadSize uint32
-}
-
 func EncodePacket(p Packet) ([]byte, error) {
 	var buf bytes.Buffer
+
+	if err := binary.Write(&buf, binary.BigEndian, p.Type); err != nil {
+		return nil, err
+	}
 
 	if err := binary.Write(&buf, binary.BigEndian, p.Index); err != nil {
 		return nil, err
@@ -45,6 +52,10 @@ func DecodePacket(data []byte) (Packet, error) {
 	var p Packet
 	reader := bytes.NewReader(data)
 
+	if err := binary.Read(reader, binary.BigEndian, &p.Type); err != nil {
+		return p, err
+	}
+
 	if err := binary.Read(reader, binary.BigEndian, &p.Index); err != nil {
 		return p, err
 	}
@@ -66,20 +77,25 @@ func DecodePacket(data []byte) (Packet, error) {
 	return p, nil
 }
 
-func DecodeHeader(data []byte) (PacketHeader, error) {
-	var ph PacketHeader
+func DecodeHeader(data []byte) (Packet, error) {
+	var p Packet
 	reader := bytes.NewReader(data)
 
-	if err := binary.Read(reader, binary.BigEndian, &ph.Index); err != nil {
-		return ph, err
+	if err := binary.Read(reader, binary.BigEndian, &p.Type); err != nil {
+		return p, err
 	}
 
-	if err := binary.Read(reader, binary.BigEndian, &ph.FileSize); err != nil {
-		return ph, err
-	}
-	if err := binary.Read(reader, binary.BigEndian, &ph.PayloadSize); err != nil {
-		return ph, err
+	if err := binary.Read(reader, binary.BigEndian, &p.Index); err != nil {
+		return p, err
 	}
 
-	return ph, nil
+	if err := binary.Read(reader, binary.BigEndian, &p.FileSize); err != nil {
+		return p, err
+	}
+
+	if err := binary.Read(reader, binary.BigEndian, &p.PayloadSize); err != nil {
+		return p, err
+	}
+
+	return p, nil
 }
