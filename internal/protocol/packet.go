@@ -3,6 +3,7 @@ package protocol
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 )
 
@@ -12,7 +13,13 @@ const (
 	PacketFileInfo PacketType = 1
 	PacketChunk    PacketType = 2
 	PacketFileEnd  PacketType = 3
+	PacketAck      PacketType = 4
+	PacketAuth     PacketType = 5
+	PacketError    PacketType = 6
 )
+
+const HeaderSize = 17
+const MaxPayloadSize = 16 << 20
 
 type Packet struct {
 	Type        PacketType
@@ -23,6 +30,9 @@ type Packet struct {
 }
 
 func EncodePacket(p Packet) ([]byte, error) {
+	if uint64(len(p.Payload)) > uint64(MaxPayloadSize) || p.PayloadSize != uint32(len(p.Payload)) {
+		return nil, fmt.Errorf("invalid packet payload size")
+	}
 	var buf bytes.Buffer
 
 	if err := binary.Write(&buf, binary.BigEndian, p.Type); err != nil {
@@ -67,6 +77,9 @@ func DecodePacket(data []byte) (Packet, error) {
 	if err := binary.Read(reader, binary.BigEndian, &p.PayloadSize); err != nil {
 		return p, err
 	}
+	if p.PayloadSize > MaxPayloadSize {
+		return p, fmt.Errorf("packet payload too large: %d", p.PayloadSize)
+	}
 
 	p.Payload = make([]byte, p.PayloadSize)
 
@@ -79,6 +92,9 @@ func DecodePacket(data []byte) (Packet, error) {
 
 func DecodeHeader(data []byte) (Packet, error) {
 	var p Packet
+	if len(data) != HeaderSize {
+		return p, fmt.Errorf("invalid packet header size: %d", len(data))
+	}
 	reader := bytes.NewReader(data)
 
 	if err := binary.Read(reader, binary.BigEndian, &p.Type); err != nil {
@@ -95,6 +111,9 @@ func DecodeHeader(data []byte) (Packet, error) {
 
 	if err := binary.Read(reader, binary.BigEndian, &p.PayloadSize); err != nil {
 		return p, err
+	}
+	if p.PayloadSize > MaxPayloadSize {
+		return p, fmt.Errorf("packet payload too large: %d", p.PayloadSize)
 	}
 
 	return p, nil

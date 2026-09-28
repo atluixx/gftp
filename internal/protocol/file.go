@@ -3,6 +3,7 @@ package protocol
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 )
 
@@ -41,6 +42,12 @@ func EncodeFileInfo(fi FileInfo) ([]byte, error) {
 	var buf bytes.Buffer
 
 	nameBytes := []byte(fi.Name)
+	if len(nameBytes) > 65535 {
+		return nil, fmt.Errorf("file name is too long")
+	}
+	if fi.FileSize < 0 {
+		return nil, fmt.Errorf("file size cannot be negative")
+	}
 
 	if err := binary.Write(&buf, binary.BigEndian, uint16(len(nameBytes))); err != nil {
 		return nil, err
