@@ -31,6 +31,22 @@ filename to rename it:
 ./gftp receive -output ./output/renamed-file.pdf
 ```
 
+Both commands accept `-host` and `-port`. `send` may repeat `-file`; a file
+or directory is sent recursively, and the receiver preserves directory
+structure. Transfers show byte progress, are acknowledged per file, and use
+SHA-256 verification. Interrupted downloads are retained as `.part` files and
+resume automatically on the next transfer.
+
+Use a shared `-token` on both ends to require authentication. TLS encryption
+is available by passing `-tls-cert cert.pem -tls-key key.pem` to the receiver
+and `-tls` to the sender. The sender deliberately accepts the server
+certificate without verification, so use this only with a certificate you
+control on a trusted network (or add certificate verification before exposing
+the service publicly).
+
+TCP is the default transport. Use `-transport udp` on both commands for UDP;
+the same protocol checks reject missing, reordered, or corrupted packets.
+
 ### Example
 
 ```sh
@@ -51,17 +67,17 @@ filename to rename it:
 * [x] Sender file flag
 * [x] Receiver output flag
 * [x] Single binary for sending and receiving
-* [ ] Configurable host and port
-* [ ] Transfer progress
-* [ ] File integrity verification
-* [ ] Better error handling
-* [ ] Transfer acknowledgements
-* [ ] Resumable transfers
-* [ ] Multiple file transfers
-* [ ] Directory transfers
-* [ ] Authentication
-* [ ] Encryption
-* [ ] UDP transport
+* [x] Configurable host and port
+* [x] Transfer progress
+* [x] File integrity verification
+* [x] Better error handling
+* [x] Transfer acknowledgements
+* [x] Resumable transfers
+* [x] Multiple file transfers
+* [x] Directory transfers
+* [x] Authentication
+* [x] Encryption
+* [x] UDP transport
 
 ## Contributing
 
