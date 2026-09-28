@@ -1,0 +1,23 @@
+# Maintainer: atluixx <https://github.com/atluixx>
+pkgname=gftp
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='A lightweight file transfer protocol built from scratch in Go'
+arch=('x86_64' 'aarch64')
+url='https://github.com/atluixx/gftp'
+license=('MIT')
+depends=('glibc')
+makedepends=('go')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('313ea9d32929869edcfffcc4257a8cae86649f4b78706bde8ac57daaa1c43906')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  go build -trimpath -buildmode=pie -o gftp ./cmd/gftp
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  install -Dm755 gftp "${pkgdir}/usr/bin/gftp"
+  install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+}
